@@ -22,7 +22,7 @@
       display: none; /* Caché tant qu'on n'est pas logué */
     }
     header {
-      background: #0080FF;
+      background: #ff4081;
       color: white;
       padding: 30px;
       text-align: center;
@@ -215,7 +215,7 @@
   <header>
     <button class="owner-toggle" id="owner-toggle-btn" onclick="basculerModeProprietaire()">🔑 Mode propriétaire</button>
     <h1>💌 Mon Album d'Amour</h1>
-    <p class="subtitle">Mes lettres secrètes pour toi (Connecté en tant que : <span id="user-display" style="font-weight:bold; color:#fff;"></span>)</p>
+    <p class="subtitle">Mes lettres secrètes pour toi (Connecté en tant que : <span id="user-display" style="font-weight:bold; color:#0080FF;"></span>)</p>
   </header>
 
   <div class="main">
@@ -428,8 +428,6 @@ async function supprimerLettre() {
     }
 
     alert("🗑️ Lettre supprimée avec succès !");
-    
-    // CORRECTION ICI : On ferme le modal et on recharge instantanément les lettres
     fermerModal();
     chargerLettres();
     
@@ -498,7 +496,7 @@ async function basculerModeProprietaire() {
     document.getElementById('owner-toggle-btn').textContent = "👑 Mode propriétaire actif";
     if (lettreActuelle) afficherLikes();
   } catch (e) {
-    alert("Erreur de vérification");
+    alert("Erreur de verification");
   }
 }
 </script>
