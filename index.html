@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mon Album des Lettres</title>
+  <title>Mon Album d'Amour Secret 💌</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -13,7 +13,7 @@
       min-height: 100vh;
     }
     .container {
-      max-width: 900px;
+      max-width: 1000px;
       margin: 0 auto;
       background: white;
       border-radius: 20px;
@@ -21,44 +21,44 @@
       overflow: hidden;
     }
     header {
-      background: #004aff;
+      background: #ff4081;
       color: white;
-      padding: 25px;
+      padding: 30px;
       text-align: center;
     }
-    h1 { margin: 0; font-size: 2.2rem; }
-    .subtitle { opacity: 0.9; margin-top: 8px; }
+    h1 { margin: 0; font-size: 2.4rem; }
+    .subtitle { opacity: 0.9; margin-top: 8px; font-size: 1.1rem; }
 
     .main {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 25px;
       padding: 30px;
     }
 
     .form-section, .list-section {
       background: #fff;
       border-radius: 16px;
-      padding: 20px;
+      padding: 25px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     }
 
     input, textarea {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       margin: 10px 0;
       border: 2px solid #ffc1d8;
-      border-radius: 10px;
+      border-radius: 12px;
       font-size: 1rem;
     }
-    textarea { min-height: 300px; resize: vertical; }
+    textarea { min-height: 320px; resize: vertical; }
 
     button {
       background: #ff4081;
       color: white;
       border: none;
       padding: 14px 28px;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       border-radius: 50px;
       cursor: pointer;
       width: 100%;
@@ -67,7 +67,7 @@
     button:hover { background: #f50057; }
 
     .letter-item {
-      padding: 15px;
+      padding: 16px;
       border: 2px solid #ffe0e6;
       border-radius: 12px;
       margin-bottom: 12px;
@@ -76,7 +76,7 @@
     }
     .letter-item:hover {
       background: #fff0f5;
-      transform: translateX(5px);
+      transform: translateX(6px);
     }
     .letter-date { font-size: 0.85rem; color: #888; }
     .letter-theme { color: #ff4081; font-weight: 600; }
@@ -86,17 +86,24 @@
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.75);
       z-index: 1000;
     }
     .modal-content {
       background: white;
-      max-width: 700px;
-      margin: 50px auto;
+      max-width: 720px;
+      margin: 40px auto;
       padding: 30px;
       border-radius: 20px;
       max-height: 85vh;
       overflow-y: auto;
+    }
+    .delete-btn {
+      background: #e63939;
+      margin-top: 20px;
+    }
+    .delete-btn:hover {
+      background: #c1121f;
     }
   </style>
 </head>
@@ -104,7 +111,7 @@
 
 <div class="container">
   <header>
-    <h1>Mon Album de lettres</h1>
+    <h1>💌 Mon Album d'Amour</h1>
     <p class="subtitle">Mes lettres secrètes pour toi</p>
   </header>
 
@@ -118,7 +125,7 @@
       <button onclick="enregistrerLettre()">💾 Enregistrer la lettre</button>
     </div>
 
-    <!-- Liste des lettres -->
+    <!-- Liste -->
     <div class="list-section">
       <h2>Mes Lettres (0)</h2>
       <div id="liste-lettres"></div>
@@ -126,21 +133,24 @@
   </div>
 </div>
 
-<!-- Modal pour lire une lettre -->
+<!-- Modal -->
 <div class="modal" id="modal">
   <div class="modal-content">
-    <button onclick="fermerModal()" style="float:right; background:none; border:none; font-size:1.5rem;">✕</button>
+    <button onclick="fermerModal()" style="float:right; background:none; border:none; font-size:1.8rem; cursor:pointer;">✕</button>
+    
     <h2 id="modal-titre"></h2>
-    <p id="modal-theme" style="color:#ff4081;"></p>
+    <p id="modal-theme" style="color:#ff4081; font-weight:600;"></p>
     <p id="modal-date" style="font-size:0.9rem; color:#666;"></p>
     <hr>
-    <div id="modal-contenu" style="white-space: pre-wrap; line-height:1.7;"></div>
+    <div id="modal-contenu" style="white-space: pre-wrap; line-height:1.75; font-size:1.05rem;"></div>
+    
+    <button onclick="supprimerLettre()" class="delete-btn">🗑️ Supprimer cette lettre</button>
   </div>
 </div>
 
 <script>
 // ==================== CONFIGURATION ====================
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfOFeJWcX-qF43BXmrLbEerDlOgmpytdu0jL6ag59jHqMjzat3T2bsj9ep5h6LSdPlTw/exec";  // ← Tu mettras ton URL ici
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfOFeJWcX-qF43BXmrLbEerDlOgmpytdu0jL6ag59jHqMjzat3T2bsj9ep5h6LSdPlTw/exec";   // ← Remplace par ton URL réelle
 
 // ==================== FONCTIONS ====================
 
@@ -170,12 +180,11 @@ async function enregistrerLettre() {
       body: JSON.stringify(data)
     });
 
-    alert("💌 Lettre enregistrée avec succès !");
+    alert("💌 Lettre enregistrée !");
     document.getElementById('titre').value = '';
     document.getElementById('theme').value = '';
     document.getElementById('contenu').value = '';
-    
-    chargerLettres(); // Rafraîchir la liste
+    chargerLettres();
   } catch(e) {
     alert("Erreur lors de l'enregistrement");
   }
@@ -189,8 +198,7 @@ async function chargerLettres() {
     const response = await fetch(GOOGLE_SCRIPT_URL + '?action=lire');
     const lettres = await response.json();
 
-    const header = document.querySelector('.list-section h2');
-    header.textContent = `Mes Lettres (${lettres.length})`;
+    document.querySelector('.list-section h2').textContent = `Mes Lettres (${lettres.length})`;
 
     if (lettres.length === 0) {
       liste.innerHTML = "<p>Aucune lettre pour le moment...</p>";
@@ -198,7 +206,7 @@ async function chargerLettres() {
     }
 
     liste.innerHTML = '';
-    lettres.reverse().forEach((lettre, index) => {
+    lettres.reverse().forEach(lettre => {
       const div = document.createElement('div');
       div.className = 'letter-item';
       div.innerHTML = `
@@ -214,12 +222,39 @@ async function chargerLettres() {
   }
 }
 
+let lettreActuelle = null;
+
 function afficherLettre(lettre) {
+  lettreActuelle = lettre;
   document.getElementById('modal-titre').textContent = lettre.titre;
   document.getElementById('modal-theme').textContent = lettre.theme;
   document.getElementById('modal-date').textContent = lettre.date;
   document.getElementById('modal-contenu').textContent = lettre.contenu;
   document.getElementById('modal').style.display = 'block';
+}
+
+async function supprimerLettre() {
+  if (!lettreActuelle || !confirm("❗ Voulez-vous vraiment supprimer cette lettre définitivement ?")) {
+    return;
+  }
+
+  try {
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: "supprimer",
+        rowIndex: lettreActuelle.rowIndex
+      })
+    });
+
+    alert("🗑️ Lettre supprimée avec succès !");
+    fermerModal();
+    chargerLettres();
+  } catch(e) {
+    alert("Erreur lors de la suppression");
+  }
 }
 
 function fermerModal() {
