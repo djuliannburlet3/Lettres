@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Album d'Amour Secret 💌</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #ffebee 0%, #f8bbd0 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    header {
+      background: #ff4081;
+      color: white;
+      padding: 25px;
+      text-align: center;
+    }
+    h1 { margin: 0; font-size: 2.2rem; }
+    .subtitle { opacity: 0.9; margin-top: 8px; }
+
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 30px;
+    }
+
+    .form-section, .list-section {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 2px solid #ffc1d8;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+    textarea { min-height: 300px; resize: vertical; }
+
+    button {
+      background: #ff4081;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    button:hover { background: #f50057; }
+
+    .letter-item {
+      padding: 15px;
+      border: 2px solid #ffe0e6;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .letter-item:hover {
+      background: #fff0f5;
+      transform: translateX(5px);
+    }
+    .letter-date { font-size: 0.85rem; color: #888; }
+    .letter-theme { color: #ff4081; font-weight: 600; }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      max-width: 700px;
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 20px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>💌 Mon Album d'Amour</h1>
+    <p class="subtitle">Mes lettres secrètes pour toi</p>
+  </header>
+
+  <div class="main">
+    <!-- Formulaire -->
+    <div class="form-section">
+      <h2>Nouvelle Lettre</h2>
+      <input type="text" id="titre" placeholder="Titre de la lettre">
+      <input type="text" id="theme" placeholder="Sujet / Thème (ex: Premier baiser, Jalousie...)">
+      <textarea id="contenu" placeholder="Écris ta lettre ici..."></textarea>
+      <button onclick="enregistrerLettre()">💾 Enregistrer la lettre</button>
+    </div>
+
+    <!-- Liste des lettres -->
+    <div class="list-section">
+      <h2>Mes Lettres (0)</h2>
+      <div id="liste-lettres"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour lire une lettre -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <button onclick="fermerModal()" style="float:right; background:none; border:none; font-size:1.5rem;">✕</button>
+    <h2 id="modal-titre"></h2>
+    <p id="modal-theme" style="color:#ff4081;"></p>
+    <p id="modal-date" style="font-size:0.9rem; color:#666;"></p>
+    <hr>
+    <div id="modal-contenu" style="white-space: pre-wrap; line-height:1.7;"></div>
+  </div>
+</div>
+
+<script>
+// ==================== CONFIGURATION ====================
+const GOOGLE_SCRIPT_URL = "TON_URL_ICI";  // ← Tu mettras ton URL ici
+
+// ==================== FONCTIONS ====================
+
+async function enregistrerLettre() {
+  const titre = document.getElementById('titre').value.trim();
+  const theme = document.getElementById('theme').value.trim();
+  const contenu = document.getElementById('contenu').value.trim();
+
+  if (!titre || !contenu) {
+    alert("Le titre et le contenu sont obligatoires 💕");
+    return;
+  }
+
+  const data = {
+    action: "ajouter",
+    titre: titre,
+    theme: theme || "Sans thème",
+    contenu: contenu,
+    date: new Date().toLocaleString('fr-FR')
+  };
+
+  try {
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    alert("💌 Lettre enregistrée avec succès !");
+    document.getElementById('titre').value = '';
+    document.getElementById('theme').value = '';
+    document.getElementById('contenu').value = '';
+    
+    chargerLettres(); // Rafraîchir la liste
+  } catch(e) {
+    alert("Erreur lors de l'enregistrement");
+  }
+}
+
+async function chargerLettres() {
+  const liste = document.getElementById('liste-lettres');
+  liste.innerHTML = "<p>Chargement...</p>";
+
+  try {
+    const response = await fetch(GOOGLE_SCRIPT_URL + '?action=lire');
+    const lettres = await response.json();
+
+    const header = document.querySelector('.list-section h2');
+    header.textContent = `Mes Lettres (${lettres.length})`;
+
+    if (lettres.length === 0) {
+      liste.innerHTML = "<p>Aucune lettre pour le moment...</p>";
+      return;
+    }
+
+    liste.innerHTML = '';
+    lettres.reverse().forEach((lettre, index) => {
+      const div = document.createElement('div');
+      div.className = 'letter-item';
+      div.innerHTML = `
+        <strong>${lettre.titre}</strong><br>
+        <span class="letter-theme">${lettre.theme}</span><br>
+        <span class="letter-date">${lettre.date}</span>
+      `;
+      div.onclick = () => afficherLettre(lettre);
+      liste.appendChild(div);
+    });
+  } catch(e) {
+    liste.innerHTML = "<p>Impossible de charger les lettres pour le moment.</p>";
+  }
+}
+
+function afficherLettre(lettre) {
+  document.getElementById('modal-titre').textContent = lettre.titre;
+  document.getElementById('modal-theme').textContent = lettre.theme;
+  document.getElementById('modal-date').textContent = lettre.date;
+  document.getElementById('modal-contenu').textContent = lettre.contenu;
+  document.getElementById('modal').style.display = 'block';
+}
+
+function fermerModal() {
+  document.getElementById('modal').style.display = 'none';
+}
+
+// Charger les lettres au démarrage
+window.onload = chargerLettres;
+</script>
+
+</body>
+</html>
