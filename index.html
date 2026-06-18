@@ -19,7 +19,7 @@
       border-radius: 20px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       overflow: hidden;
-      display: none; /* Caché tant qu'on n'est pas logué */
+      display: none;
     }
     header {
       background: #ff4081;
@@ -178,7 +178,6 @@
       border-bottom: 1px solid #f5f5f5;
     }
     
-    /* Écran de verrouillage */
     .gatekeeper {
       position: fixed;
       top:0; left:0; width:100%; height:100%;
@@ -256,16 +255,13 @@
 </div>
 
 <script>
-// ==================== CONFIGURATION ====================
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfOFeJWcX-qF43BXmrLbEerDlOgmpytdu0jL6ag59jHqMjzat3T2bsj9ep5h6LSdPlTw/exec";
 
-// ==================== ÉTAT ====================
 let lettreActuelle = null;
 let modeProprietaire = false;
 let mdpProprietaireValide = null;
 let utilisateurConnecte = null; 
 
-// ==================== FONCTION DE CONNEXION ====================
 async function tenterConnexionSite() {
   const id = document.getElementById('gate-id').value.trim();
   const mdp = document.getElementById('gate-mdp').value;
@@ -287,6 +283,15 @@ async function tenterConnexionSite() {
       document.getElementById('user-display').textContent = id;
       document.getElementById('auth-gate').style.display = 'none';
       document.getElementById('site-container').style.display = 'block';
+      
+      // Auto-activation si le compte de connexion correspond au mot de passe maître
+      if (mdp === "je suis love de elyne") {
+        modeProprietaire = true;
+        mdpProprietaireValide = mdp;
+        document.getElementById('owner-toggle-btn').classList.add('active');
+        document.getElementById('owner-toggle-btn').textContent = "👑 Mode propriétaire actif";
+      }
+      
       chargerLettres();
     } else {
       alert("❌ Identifiant ou mot de passe incorrect.");
@@ -304,8 +309,6 @@ async function appelerBackend(payload) {
   });
   return (await res.text()).trim();
 }
-
-// ==================== LETTRES ====================
 
 async function enregistrerLettre() {
   const titre = document.getElementById('titre').value.trim();
@@ -412,7 +415,11 @@ async function supprimerLettre() {
     return;
   }
 
-  const mdp = mdpProprietaireValide || prompt("Mot de passe propriétaire pour confirmer la suppression :");
+  // CORRECTION : Si non connecté en mode propriétaire, on force la demande du mot de passe maître
+  let mdp = mdpProprietaireValide;
+  if (!mdp) {
+    mdp = prompt("Saisis le mot de passe propriétaire pour valider la suppression :");
+  }
   if (!mdp) return;
 
   try {
@@ -441,7 +448,6 @@ function fermerModal() {
   lettreActuelle = null;
 }
 
-// ==================== LIKES SIMPLIFIÉS ====================
 async function toggleLike() {
   if (!lettreActuelle) return;
   
@@ -470,7 +476,6 @@ async function toggleLike() {
   }
 }
 
-// ==================== MODE PROPRIÉTAIRE ====================
 async function basculerModeProprietaire() {
   if (modeProprietaire) {
     modeProprietaire = false;
