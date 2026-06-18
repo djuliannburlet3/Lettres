@@ -22,7 +22,7 @@
       display: none;
     }
     header {
-      background: #ff4081;
+      background: #0080ff;
       color: white;
       padding: 30px;
       text-align: center;
@@ -200,6 +200,7 @@
 </head>
 <body>
 
+<!-- ÉCRAN DE VERROUILLAGE -->
 <div class="gatekeeper" id="auth-gate">
   <div class="gatekeeper-box">
     <h2>Entrée Secrète 🔒</h2>
@@ -214,10 +215,11 @@
   <header>
     <button class="owner-toggle" id="owner-toggle-btn" onclick="basculerModeProprietaire()">🔑 Mode propriétaire</button>
     <h1>💌 Mon Album d'Amour</h1>
-    <p class="subtitle">Mes lettres secrètes pour toi (Connecté en tant que : <span id="user-display" style="font-weight:bold; color:#ffffff;"></span>)</p>
+    <p class="subtitle">Mes lettres secrètes pour toi (Connecté en tant que : <span id="user-display" style="font-weight:bold; color:#0080FF;"></span>)</p>
   </header>
 
   <div class="main">
+    <!-- Formulaire -->
     <div class="form-section">
       <h2>Nouvelle Lettre</h2>
       <input type="text" id="titre" placeholder="Titre de la lettre">
@@ -226,6 +228,7 @@
       <button onclick="enregistrerLettre()">💾 Enregistrer la lettre</button>
     </div>
 
+    <!-- Liste -->
     <div class="list-section">
       <h2>Mes Lettres (<span id="nb-lettres">0</span>)</h2>
       <div id="liste-lettres"></div>
@@ -233,6 +236,7 @@
   </div>
 </div>
 
+<!-- Modal -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <button onclick="fermerModal()" style="float:right; background:none; border:none; font-size:1.8rem; cursor:pointer; width:auto;">✕</button>
@@ -248,8 +252,10 @@
       <div class="likes-detail" id="likes-detail"></div>
     </div>
 
+    <!-- Bouton de suppression propriétaire -->
     <button onclick="supprimerLettre()" class="delete-btn">🗑️ Supprimer cette lettre</button>
     
+    <!-- Bouton retour -->
     <button onclick="fermerModal()" class="back-btn">⬅️ Retour à la liste</button>
   </div>
 </div>
@@ -284,7 +290,6 @@ async function tenterConnexionSite() {
       document.getElementById('auth-gate').style.display = 'none';
       document.getElementById('site-container').style.display = 'block';
       
-      // Auto-activation si le compte de connexion correspond au mot de passe maître
       if (mdp === "je suis love de elyne") {
         modeProprietaire = true;
         mdpProprietaireValide = mdp;
@@ -415,7 +420,6 @@ async function supprimerLettre() {
     return;
   }
 
-  // CORRECTION : Si non connecté en mode propriétaire, on force la demande du mot de passe maître
   let mdp = mdpProprietaireValide;
   if (!mdp) {
     mdp = prompt("Saisis le mot de passe propriétaire pour valider la suppression :");
@@ -423,9 +427,12 @@ async function supprimerLettre() {
   if (!mdp) return;
 
   try {
+    // ENVOI SÉCURISÉ : On transmet l'id, mais aussi le titre et la date au cas où l'id a sauté
     const resultat = await appelerBackend({
       action: "supprimer",
       id: lettreActuelle.id,
+      titre: lettreActuelle.titre,
+      date: lettreActuelle.date,
       motDePasse: mdp
     });
 
@@ -486,7 +493,7 @@ async function basculerModeProprietaire() {
     return;
   }
 
-  const mdp = prompt("Mot de passe propriétaire :");
+  const mdp = prompt("Mon de passe propriétaire :");
   if (!mdp) return;
 
   try {
