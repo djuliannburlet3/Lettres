@@ -143,6 +143,14 @@
     .delete-btn:hover {
       background: #c1121f;
     }
+    
+    .back-btn {
+      background: #757575;
+      margin-top: 10px;
+    }
+    .back-btn:hover {
+      background: #424242;
+    }
 
     .like-section {
       margin-top: 25px;
@@ -193,7 +201,6 @@
 </head>
 <body>
 
-<!-- ÉCRAN DE VERROUILLAGE UNIQUE -->
 <div class="gatekeeper" id="auth-gate">
   <div class="gatekeeper-box">
     <h2>Entrée Secrète 🔒</h2>
@@ -208,11 +215,10 @@
   <header>
     <button class="owner-toggle" id="owner-toggle-btn" onclick="basculerModeProprietaire()">🔑 Mode propriétaire</button>
     <h1>💌 Mon Album d'Amour</h1>
-    <p class="subtitle">Mes lettres secrètes pour toi (Connecté en tant que : <span id="user-display" style="font-weight:bold;"></span>)</p>
+    <p class="subtitle">Mes lettres secrètes pour toi (Connecté en tant que : <span id="user-display" style="font-weight:bold; color:#fff;"></span>)</p>
   </header>
 
   <div class="main">
-    <!-- Formulaire -->
     <div class="form-section">
       <h2>Nouvelle Lettre</h2>
       <input type="text" id="titre" placeholder="Titre de la lettre">
@@ -221,7 +227,6 @@
       <button onclick="enregistrerLettre()">💾 Enregistrer la lettre</button>
     </div>
 
-    <!-- Liste -->
     <div class="list-section">
       <h2>Mes Lettres (<span id="nb-lettres">0</span>)</h2>
       <div id="liste-lettres"></div>
@@ -229,7 +234,6 @@
   </div>
 </div>
 
-<!-- Modal -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <button onclick="fermerModal()" style="float:right; background:none; border:none; font-size:1.8rem; cursor:pointer; width:auto;">✕</button>
@@ -246,6 +250,8 @@
     </div>
 
     <button onclick="supprimerLettre()" class="delete-btn">🗑️ Supprimer cette lettre</button>
+    
+    <button onclick="fermerModal()" class="back-btn">⬅️ Retour à la liste</button>
   </div>
 </div>
 
@@ -257,7 +263,7 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfOFeJWcX-qF
 let lettreActuelle = null;
 let modeProprietaire = false;
 let mdpProprietaireValide = null;
-let utilisateurConnecte = null; // Stocke l'ID de la personne loguée
+let utilisateurConnecte = null; 
 
 // ==================== FONCTION DE CONNEXION ====================
 async function tenterConnexionSite() {
@@ -422,8 +428,11 @@ async function supprimerLettre() {
     }
 
     alert("🗑️ Lettre supprimée avec succès !");
+    
+    // CORRECTION ICI : On ferme le modal et on recharge instantanément les lettres
     fermerModal();
     chargerLettres();
+    
   } catch (e) {
     alert("Erreur lors de la suppression");
   }
@@ -431,13 +440,13 @@ async function supprimerLettre() {
 
 function fermerModal() {
   document.getElementById('modal').style.display = 'none';
+  lettreActuelle = null;
 }
 
 // ==================== LIKES SIMPLIFIÉS ====================
 async function toggleLike() {
   if (!lettreActuelle) return;
   
-  // Plus besoin de prompt pour le mdp ! On utilise directement la session en cours.
   try {
     const resultat = await appelerBackend({
       action: "aimer",
